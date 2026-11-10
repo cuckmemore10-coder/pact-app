@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Pact" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Private pact maker" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <title>Pact</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div id="lock-screen" class="hidden">
+    <div class="lock-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#f5f5f7" stroke-width="1.8">
+        <rect x="5" y="11" width="14" height="10" rx="2"/>
+        <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+      </svg>
+    </div>
+    <h2 class="lock-title" id="lock-title">Enter PIN</h2>
+    <p class="lock-sub" id="lock-sub">Pact is locked.</p>
+    <div class="pin-dots" aria-hidden="true">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" data-key="1">1</button>
+      <button class="pin-key" data-key="2">2</button>
+      <button class="pin-key" data-key="3">3</button>
+      <button class="pin-key" data-key="4">4</button>
+      <button class="pin-key" data-key="5">5</button>
+      <button class="pin-key" data-key="6">6</button>
+      <button class="pin-key" data-key="7">7</button>
+      <button class="pin-key" data-key="8">8</button>
+      <button class="pin-key" data-key="9">9</button>
+      <button class="pin-key ghost" data-key="x"></button>
+      <button class="pin-key" data-key="0">0</button>
+      <button class="pin-key ghost" data-key="del">Delete</button>
+    </div>
+    <div class="lock-error" id="lock-error"></div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="app-top">
+      <h1 id="header-title">Pact</h1>
+      <div>
+        <button class="btn ghost hidden" id="btn-home-link" type="button">Home</button>
+        <button class="btn ghost" id="btn-settings" type="button">Settings</button>
+      </div>
+    </div>
+
+    <section id="screen-home" class="screen active">
+      <div class="card">
+        <h2>Rules contract maker</h2>
+        <p>
+          Build a private, playful house-rules pact for a consenting adult couple.
+          Toggle preset clauses, add your own, sign on-screen, and export a PDF — all on this device.
+        </p>
+        <p class="hint" id="clause-count-home"></p>
+        <button class="btn primary" id="btn-new" type="button">New pact</button>
+      </div>
+      <div class="card">
+        <h2>Saved pacts</h2>
+        <div id="saved-list"></div>
+      </div>
+      <p class="hint">
+        Adults only · either partner can pause or revoke at any time.
+        Add to Home Screen from Safari for an app named <strong>Pact</strong>.
+      </p>
+    </section>
+
+    <section id="screen-builder" class="screen">
+      <div class="step-meta">
+        <span id="step-label">Names</span>
+        <span id="step-count">1 / 8</span>
+      </div>
+      <div class="progress-bar"><span id="progress-fill"></span></div>
+
+      <!-- Names -->
+      <div class="step-pane" data-step="names">
+        <div class="card">
+          <h2>Who’s in this pact?</h2>
+          <p>Nicknames are fine. This stays on your device.</p>
+          <label class="lab">Document title</label>
+          <input class="field" id="title-input" type="text" placeholder="Our house rules" />
+          <div class="grid-2">
+            <div>
+              <label class="lab">Partner A name</label>
+              <input class="field" id="name-a" type="text" placeholder="Name or nickname" />
+              <label class="lab">Role</label>
+              <select class="field" id="role-a"></select>
+            </div>
+            <div>
+              <label class="lab">Partner B name</label>
+              <input class="field" id="name-b" type="text" placeholder="Name or nickname" />
+              <label class="lab">Role</label>
+              <select class="field" id="role-b"></select>
+            </div>
+          </div>
+          <label class="lab">Couple safeword</label>
+          <input class="field" id="safeword-input" type="text" placeholder="Red" />
+          <div class="settings-row" style="margin-top:8px">
+            <span>Include a bull nickname</span>
+            <button class="toggle" id="bull-enabled" type="button" aria-label="Toggle bull nickname"></button>
+          </div>
+          <div id="bull-fields" class="hidden">
+            <label class="lab">Bull nickname</label>
+            <input class="field" id="bull-name" type="text" placeholder="A nickname, not a demand" />
+            <p class="hint">Only used if the real person consents to play by your rules.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tone -->
+      <div class="step-pane hidden" data-step="tone">
+        <div class="card">
+          <h2>How should it read?</h2>
+          <p>Same rules, three voices. You can change this later and the clauses rewrite themselves.</p>
+          <div style="height:12px"></div>
+          <div class="seg" id="tone-seg">
+            <button type="button" data-tone="playful" class="active">Playful</button>
+            <button type="button" data-tone="sexy">Sexy</button>
+            <button type="button" data-tone="formal">Formal</button>
+          </div>
+          <p class="hint">Sample clause</p>
+          <p id="tone-sample" style="margin-top:8px;font-size:14px;line-height:1.45;color:var(--text)"></p>
+        </div>
+      </div>
+
+      <!-- Clause sections (shared chrome) -->
+      <div class="step-pane hidden" data-step="boundaries" id="pane-clauses-shared">
+        <!-- placeholder; actual clause panes below share the same list UI via JS targeting IDs that live once -->
+      </div>
+      <div class="step-pane hidden" data-step="safety"></div>
+      <div class="step-pane hidden" data-step="communication"></div>
+      <div class="step-pane hidden" data-step="perks"></div>
+      <div class="step-pane hidden" data-step="duration"></div>
+
+      <div id="clause-chrome" class="hidden">
+        <div class="card" id="clause-card">
+          <h2 id="clause-title">Boundaries</h2>
+          <p id="clause-blurb"></p>
+          <div id="clause-list"></div>
+          <div id="comm-extra" class="hidden">
+            <label class="lab">Check-in notes (timer, code phrase, etc.)</label>
+            <textarea class="field" id="checkin-note" rows="3" placeholder="e.g. Hourly ‘green’ text, code word ‘lighthouse’ means come get me."></textarea>
+          </div>
+          <div id="duration-extra" class="hidden">
+            <div class="grid-2">
+              <div>
+                <label class="lab">Effective date</label>
+                <input class="field" id="start-date" type="date" />
+              </div>
+              <div>
+                <label class="lab">Review date</label>
+                <input class="field" id="review-date" type="date" />
+              </div>
+            </div>
+            <label class="lab">Duration note (optional)</label>
+            <textarea class="field" id="duration-note" rows="3" placeholder="Anything else about timing…"></textarea>
+          </div>
+          <label class="lab">Add a custom clause</label>
+          <textarea class="field" id="custom-input" rows="2" placeholder="Write your own rule…"></textarea>
+          <button class="btn" id="btn-add-custom" type="button">Add clause</button>
+          <div class="custom-list" id="custom-list"></div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="step-pane hidden" data-step="preview">
+        <div class="paper-wrap">
+          <div class="paper" id="paper"></div>
+        </div>
+        <div class="card">
+          <h2>Signatures</h2>
+          <p>Sign with a finger. Dates are added automatically.</p>
+          <label class="lab" id="sig-label-a">Partner A</label>
+          <div class="sig-pad-wrap"><canvas id="pad-a" width="600" height="280"></canvas></div>
+          <div class="sig-tools"><span class="hint" style="margin:0">Sign above</span>
+            <button class="btn ghost" id="btn-clear-a" type="button">Clear</button>
+          </div>
+          <label class="lab" id="sig-label-b">Partner B</label>
+          <div class="sig-pad-wrap"><canvas id="pad-b" width="600" height="280"></canvas></div>
+          <div class="sig-tools"><span class="hint" style="margin:0">Sign above</span>
+            <button class="btn ghost" id="btn-clear-b" type="button">Clear</button>
+          </div>
+          <button class="btn primary" id="btn-export" type="button">Export PDF</button>
+        </div>
+      </div>
+
+      <div class="builder-nav btn-row">
+        <button class="btn" id="btn-back" type="button">Back</button>
+        <button class="btn primary" id="btn-next" type="button">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-settings" class="screen">
+      <div class="card">
+        <div class="settings-row">
+          <div>
+            <div>PIN lock</div>
+            <div class="hint" style="margin:4px 0 0" id="pin-toggle-label">Off</div>
+          </div>
+          <button class="toggle" id="pin-toggle" type="button" aria-label="Toggle PIN"></button>
+        </div>
+        <div class="settings-row">
+          <span>Change PIN</span>
+          <button class="btn ghost" id="btn-change-pin" type="button">Change</button>
+        </div>
+        <div class="settings-row">
+          <span>Lock now</span>
+          <button class="btn ghost" id="btn-lock-now" type="button">Lock</button>
+        </div>
+        <div class="settings-row">
+          <span>Clear all saved pacts</span>
+          <button class="btn ghost" id="btn-clear-all" type="button" style="color:var(--danger)">Clear</button>
+        </div>
+      </div>
+      <button class="btn" id="btn-settings-back" type="button">Back</button>
+      <p class="hint">PIN is stored as a salted hash in local storage. Contracts never leave your phone unless you export or share them.</p>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./vendor/jspdf.umd.min.js"></script>
+  <script src="./js/clauses.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
